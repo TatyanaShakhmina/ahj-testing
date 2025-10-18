@@ -1,0 +1,48 @@
+name: Build and Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: ✅ Клонируем репозиторий
+        uses: actions/checkout@v4
+
+      - name: 🔧 Устанавливаем Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'yarn'
+
+      - name: 📦 Установка зависимостей
+        run: yarn install --frozen-lockfile
+
+      - name: 🔨 Сборка проекта Webpack'ом
+        run: yarn build
+
+      - name: 📋 Настройка GitHub Pages
+        uses: actions/configure-pages@v4
+
+      - name: 📤 Загрузка артефактов
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+      - name: 🚀 Деплой на GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
