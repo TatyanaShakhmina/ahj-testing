@@ -31,5 +31,11 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Serve dist (background)
+        run: npx http-server ./dist -p 8080 &
+
+      - name: Wait for server
+        run: npx wait-on http://localhost:8080
+
       - name: Run e2e tests
         run: npm run e2e
